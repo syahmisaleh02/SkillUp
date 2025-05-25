@@ -1,16 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Courses - SkillUp</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My Courses | SkillUp</title>
     <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.2/dist/alpine.min.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
 </head>
-<body class="bg-gray-100">
-<aside class="w-64 bg-green-700 text-white shadow-md flex flex-col h-screen fixed">
+<body class="bg-gray-50 dark:bg-gray-900">
+    <div class="flex min-h-screen">
+        <!-- Side Navigation -->
+        <aside class="w-64 bg-green-700 text-white shadow-md flex flex-col h-screen fixed">
             <!-- Top Section: Logo + Menu -->
             <div class="flex-1">
                 <div class="p-4 border-b border-green-600">
@@ -19,19 +20,19 @@
                 </div>
                 <ul class="mt-4">
                     <li>
-                        <a href="{{ route('employee.dashboard') }}" class="block py-2 px-4 bg-green-600 flex items-center">
+                        <a href="{{ route('employee.dashboard') }}" class="block py-2 px-4 hover:bg-green-600 flex items-center">
                             <i class="fas fa-home w-6"></i>
                             <span>Homepage</span>
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('employee.attendance') }}" class="block py-2 px-4 hover:bg-green-600 flex items-center">
-                            <i class="bi bi-calendar-check mr-3"></i>
+                            <i class="fas fa-calendar-check w-6"></i>
                             <span>Attendance</span>
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('employee.courses') }}" class="block py-2 px-4 hover:bg-green-600 flex items-center">
+                        <a href="{{ route('employee.courses') }}" class="block py-2 px-4 bg-green-600 flex items-center">
                             <i class="fas fa-book w-6"></i>
                             <span>Courses</span>
                         </a>
@@ -48,129 +49,120 @@
             <!-- Bottom Profile Section -->
             <div class="p-4 border-t border-green-600">
                 <a href="{{ route('profile') }}" class="flex items-center space-x-3 hover:bg-green-600 p-2 rounded-lg transition">
-                    <img src="{{ asset('assets/profile.png') }}" alt="Profile" class="h-10 w-10 rounded-full">
+                    <div class="h-10 w-10 rounded-full bg-white flex items-center justify-center">
+                        <i class="fas fa-user text-green-700"></i>
+                    </div>
                     <div>
-                        <p class="text-sm font-medium">John Doe</p>
-                        <p class="text-xs text-green-200">Employee</p>
+                        <p class="text-sm font-medium">{{ Auth::user()->name }}</p>
+                        <p class="text-xs text-green-200">{{ ucfirst(Auth::user()->role) }}</p>
                     </div>
                 </a>
             </div>
-        </aside>  
+        </aside>
 
         <!-- Main Content -->
-        <div class="ml-64">
+        <main class="flex-1 ml-64 p-6">
+            <!-- Success Message -->
+            @if(session('success'))
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <span class="block sm:inline">{{ session('success') }}</span>
+            </div>
+            @endif
+
+            <!-- Error Message -->
+            @if(session('error'))
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <span class="block sm:inline">{{ session('error') }}</span>
+            </div>
+            @endif
+
             <!-- Header -->
-            <header class="bg-white shadow">
-                <div class="px-6 py-4">
-                    <div class="flex items-center justify-between">
-                        <h1 class="text-2xl font-semibold text-gray-800">My Courses</h1>
-                        <div class="flex items-center space-x-4">
-                            <div class="relative">
-                                <input type="text" placeholder="Search courses..." class="w-64 px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                                <i class="bi bi-search absolute right-3 top-2.5 text-gray-400"></i>
+            <div class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-800 dark:text-white">My Courses</h1>
+            </div>
+
+            <!-- Assigned Courses Section -->
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">My Assigned Courses</h2>
+                @if($assignedCourses->count() > 0)
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        @foreach($assignedCourses as $course)
+                            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
+                                <div class="p-6">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <span class="px-3 py-1 text-sm font-semibold {{ $course->status === 'active' ? 'text-green-800 bg-green-100 dark:bg-green-900 dark:text-green-200' : 'text-yellow-800 bg-yellow-100 dark:bg-yellow-900 dark:text-yellow-200' }} rounded-full">
+                                            {{ ucfirst($course->status) }}
+                                        </span>
+                                    </div>
+                                    <a href="{{ route('employee.course.view', $course->_id) }}" class="block">
+                                        <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-2 hover:text-green-600 transition">{{ $course->title }}</h3>
+                                        <p class="text-gray-600 dark:text-gray-300 mb-4">{{ Str::limit($course->description, 100) }}</p>
+                                    </a>
+                                    
+                                    @php
+                                        $employeeId = (string)Auth::user()->_id;
+                                        $completedMaterials = $course->completed_materials[$employeeId] ?? [];
+                                        $totalMaterials = count($course->materials ?? []);
+                                        $progress = $totalMaterials > 0 ? round((count($completedMaterials) / $totalMaterials) * 100) : 0;
+                                    @endphp
+                                    
+                                    <div class="mt-4">
+                                        <div class="flex items-center">
+                                            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                                <div class="bg-green-600 h-2.5 rounded-full" style="width: {{ $progress }}%"></div>
+                                            </div>
+                                            <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">{{ $progress }}% Complete</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <button class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
-                                Filter
-                            </button>
-                        </div>
+                        @endforeach
                     </div>
-                </div>
-            </header>
-
-            <!-- Course Content -->
-            <main class="p-6">
-                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                    <!-- Course List -->
-                    <div class="lg:col-span-1">
-                        <div class="bg-white rounded-lg shadow-md p-6">
-                            <h2 class="text-xl font-semibold text-gray-800 mb-4">Enrolled Courses</h2>
-                            <div class="space-y-4">
-                                <!-- Course Item 1 -->
-                                <a href="#" class="block p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors duration-300">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <h3 class="font-semibold text-gray-800">Web Development Fundamentals</h3>
-                                        <span class="text-sm text-green-600">In Progress</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-2">
-                                        <div class="bg-green-600 h-2 rounded-full" style="width: 60%"></div>
-                                    </div>
-                                    <p class="text-sm text-gray-600 mt-2">60% Complete</p>
-                                </a>
-
-                                <!-- Course Item 2 -->
-                                <a href="#" class="block p-4 bg-white rounded-lg hover:bg-green-50 transition-colors duration-300">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <h3 class="font-semibold text-gray-800">Data Analysis with Python</h3>
-                                        <span class="text-sm text-gray-500">Not Started</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-2">
-                                        <div class="bg-green-600 h-2 rounded-full" style="width: 0%"></div>
-                                    </div>
-                                    <p class="text-sm text-gray-600 mt-2">0% Complete</p>
-                                </a>
-                            </div>
-                        </div>
+                @else
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 text-center">
+                        <p class="text-gray-500 dark:text-gray-400">You haven't been assigned to any courses yet.</p>
                     </div>
+                @endif
+            </div>
 
-                    <!-- Course Materials -->
-                    <div class="lg:col-span-3">
-                        <div class="bg-white rounded-lg shadow-md p-6">
-                            <h2 class="text-xl font-semibold text-gray-800 mb-4">Course Materials</h2>
-                            
-                            <!-- Module 1 -->
-                            <div class="mb-6">
-                                <div class="flex items-center justify-between mb-2">
-                                    <h3 class="text-lg font-semibold text-gray-800">Module 1: Introduction to Web Development</h3>
-                                    <span class="text-sm text-gray-500">2 hours</span>
-                                </div>
-                                <div class="space-y-2">
-                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
-                                        <i class="bi bi-play-circle text-green-600 mr-3"></i>
-                                        <span class="text-gray-700">Introduction to HTML</span>
-                                        <span class="ml-auto text-sm text-gray-500">30 min</span>
+            <!-- Available Courses Section -->
+            <div>
+                <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Available Courses</h2>
+                @if($unassignedCourses->count() > 0)
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        @foreach($unassignedCourses as $course)
+                            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
+                                <div class="p-6">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <span class="px-3 py-1 text-sm font-semibold {{ $course->status === 'active' ? 'text-green-800 bg-green-100 dark:bg-green-900 dark:text-green-200' : 'text-yellow-800 bg-yellow-100 dark:bg-yellow-900 dark:text-yellow-200' }} rounded-full">
+                                            {{ ucfirst($course->status) }}
+                                        </span>
                                     </div>
-                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
-                                        <i class="bi bi-play-circle text-green-600 mr-3"></i>
-                                        <span class="text-gray-700">Basic CSS Styling</span>
-                                        <span class="ml-auto text-sm text-gray-500">45 min</span>
-                                    </div>
-                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
-                                        <i class="bi bi-file-earmark-text text-green-600 mr-3"></i>
-                                        <span class="text-gray-700">HTML & CSS Quiz</span>
-                                        <span class="ml-auto text-sm text-gray-500">15 min</span>
+                                    <a href="{{ route('employee.course.view', $course->_id) }}" class="block">
+                                        <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-2 hover:text-green-600 transition">{{ $course->title }}</h3>
+                                        <p class="text-gray-600 dark:text-gray-300 mb-4">{{ Str::limit($course->description, 100) }}</p>
+                                    </a>
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-users text-gray-500 dark:text-gray-400 mr-2"></i>
+                                            <span class="text-sm text-gray-500 dark:text-gray-400">{{ $course->enrolled_count }} Enrolled</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <i class="fas fa-star text-yellow-500 mr-1"></i>
+                                            <span class="text-sm text-gray-500 dark:text-gray-400">{{ $course->rating ? number_format($course->rating, 1) : '-' }}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Module 2 -->
-                            <div class="mb-6">
-                                <div class="flex items-center justify-between mb-2">
-                                    <h3 class="text-lg font-semibold text-gray-800">Module 2: JavaScript Basics</h3>
-                                    <span class="text-sm text-gray-500">3 hours</span>
-                                </div>
-                                <div class="space-y-2">
-                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
-                                        <i class="bi bi-play-circle text-green-600 mr-3"></i>
-                                        <span class="text-gray-700">JavaScript Fundamentals</span>
-                                        <span class="ml-auto text-sm text-gray-500">1 hour</span>
-                                    </div>
-                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
-                                        <i class="bi bi-play-circle text-green-600 mr-3"></i>
-                                        <span class="text-gray-700">DOM Manipulation</span>
-                                        <span class="ml-auto text-sm text-gray-500">1 hour</span>
-                                    </div>
-                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
-                                        <i class="bi bi-file-earmark-text text-green-600 mr-3"></i>
-                                        <span class="text-gray-700">JavaScript Quiz</span>
-                                        <span class="ml-auto text-sm text-gray-500">30 min</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        @endforeach
                     </div>
-                </div>
-            </main>
-        </div>
+                @else
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 text-center">
+                        <p class="text-gray-500 dark:text-gray-400">No additional courses are available at the moment.</p>
+                    </div>
+                @endif
+            </div>
+        </main>
     </div>
 </body>
 </html> 

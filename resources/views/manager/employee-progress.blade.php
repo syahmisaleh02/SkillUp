@@ -28,7 +28,7 @@
                     <li>
                         <a href="{{ route('manager.team') }}" class="block py-2 px-4 bg-green-600 flex items-center">
                             <i class="fas fa-users w-6"></i>
-                            <span>Team Management</span>
+                            <span>Team Performance</span>
                         </a>
                     </li>
                     <li>
@@ -38,9 +38,9 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="block py-2 px-4 hover:bg-green-600 flex items-center">
+                        <a href="{{ route('manager.course.data') }}" class="block py-2 px-4 hover:bg-green-600 flex items-center">
                             <i class="fas fa-chart-line w-6"></i>
-                            <span>Performance Reports</span>
+                            <span>Course Data</span>
                         </a>
                     </li>
                 </ul>
@@ -53,8 +53,8 @@
                         <i class="fas fa-user text-green-700"></i>
                     </div>
                     <div>
-                        <p class="text-sm font-medium">Guest User</p>
-                        <p class="text-xs text-green-200">Manager</p>
+                        <p class="text-sm font-medium">{{ Auth::user()->name }}</p>
+                        <p class="text-xs text-green-200">{{ ucfirst(Auth::user()->role) }}</p>
                     </div>
                 </a>
             </div>
@@ -62,100 +62,94 @@
 
         <!-- Main Content -->
         <main class="flex-1 ml-64 p-6">
-            <div class="max-w-4xl mx-auto">
-                <div class="flex justify-between items-center mb-8">
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-8">
+                <div>
                     <h1 class="text-3xl font-bold text-gray-800 dark:text-white">Employee Progress</h1>
-                    <a href="{{ route('manager.team') }}" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
-                        <i class="fas fa-arrow-left mr-2"></i>Back to Team
-                    </a>
+                    <p class="text-gray-600 dark:text-gray-400 mt-1">{{ $employee->name }}'s Learning Progress</p>
                 </div>
+                <a href="{{ route('manager.team') }}" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Team
+                </a>
+            </div>
 
-                <!-- Employee Info -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-6">
-                    <div class="flex items-center space-x-4">
-                        <div class="h-16 w-16 rounded-full bg-gray-200 flex items-center justify-center">
-                            <i class="fas fa-user text-gray-600 text-2xl"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">John Doe</h2>
-                            <p class="text-gray-500 dark:text-gray-400">Software Developer</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Progress Overview -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-6">
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Overall Progress</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-green-50 dark:bg-green-900 p-4 rounded-lg">
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm font-medium text-green-800 dark:text-green-200">Completed Courses</span>
-                                <span class="text-2xl font-bold text-green-600 dark:text-green-400">3</span>
-                            </div>
-                        </div>
-                        <div class="bg-blue-50 dark:bg-blue-900 p-4 rounded-lg">
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm font-medium text-blue-800 dark:text-blue-200">In Progress</span>
-                                <span class="text-2xl font-bold text-blue-600 dark:text-blue-400">2</span>
-                            </div>
-                        </div>
-                        <div class="bg-yellow-50 dark:bg-yellow-900 p-4 rounded-lg">
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm font-medium text-yellow-800 dark:text-yellow-200">Average Score</span>
-                                <span class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">85%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Course Progress Details -->
+            <!-- Employee Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Course Progress</h3>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Completed Courses</p>
+                            <p class="text-2xl font-bold text-gray-800 dark:text-white">{{ $completedCourses }}</p>
+                        </div>
+                        <div class="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
+                            <i class="fas fa-check-circle text-green-600 dark:text-green-400"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">In Progress</p>
+                            <p class="text-2xl font-bold text-gray-800 dark:text-white">{{ $inProgressCourses }}</p>
+                        </div>
+                        <div class="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                            <i class="fas fa-spinner text-blue-600 dark:text-blue-400"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Average Score</p>
+                            <p class="text-2xl font-bold text-gray-800 dark:text-white">{{ $averageScore }}%</p>
+                        </div>
+                        <div class="h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
+                            <i class="fas fa-chart-line text-purple-600 dark:text-purple-400"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course Progress List -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Course Progress</h2>
                     <div class="space-y-4">
-                        <!-- Course 1 -->
-                        <div class="border rounded-lg p-4">
+                        @forelse($courseProgress as $course)
+                        <div class="border dark:border-gray-700 rounded-lg p-4">
                             <div class="flex items-center justify-between mb-2">
-                                <h4 class="font-medium text-gray-800 dark:text-white">Web Development Fundamentals</h4>
-                                <span class="text-sm font-medium text-green-600">75% Complete</span>
+                                <div class="flex items-center">
+                                    <i class="fas fa-book text-blue-500 mr-3"></i>
+                                    <h3 class="text-lg font-medium text-gray-800 dark:text-white">{{ $course['title'] }}</h3>
+                                </div>
+                                <span class="px-3 py-1 text-sm font-semibold rounded-full {{ $course['is_completed'] ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' }}">
+                                    {{ $course['is_completed'] ? 'Completed' : 'In Progress' }}
+                                </span>
                             </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                <div class="bg-green-500 h-2.5 rounded-full" style="width: 75%"></div>
-                            </div>
-                            <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                                <p>Last Activity: 2 days ago</p>
-                                <p>Time Spent: 12 hours</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-clock text-gray-500 mr-2"></i>
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">{{ $course['time_spent'] }} hours spent</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-calendar text-gray-500 mr-2"></i>
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">Last activity: {{ $course['last_activity'] }}</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300 mr-2">{{ $course['progress'] }}%</span>
+                                    <div class="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-blue-500 h-2 rounded-full" style="width: {{ $course['progress'] }}%"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-
-                        <!-- Course 2 -->
-                        <div class="border rounded-lg p-4">
-                            <div class="flex items-center justify-between mb-2">
-                                <h4 class="font-medium text-gray-800 dark:text-white">Advanced UI/UX Design</h4>
-                                <span class="text-sm font-medium text-blue-600">45% Complete</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                <div class="bg-blue-500 h-2.5 rounded-full" style="width: 45%"></div>
-                            </div>
-                            <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                                <p>Last Activity: 1 day ago</p>
-                                <p>Time Spent: 8 hours</p>
-                            </div>
+                        @empty
+                        <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                            No courses assigned yet.
                         </div>
-
-                        <!-- Course 3 -->
-                        <div class="border rounded-lg p-4">
-                            <div class="flex items-center justify-between mb-2">
-                                <h4 class="font-medium text-gray-800 dark:text-white">Project Management Essentials</h4>
-                                <span class="text-sm font-medium text-green-600">100% Complete</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                <div class="bg-green-500 h-2.5 rounded-full" style="width: 100%"></div>
-                            </div>
-                            <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                                <p>Completed: 1 week ago</p>
-                                <p>Final Score: 92%</p>
-                            </div>
-                        </div>
+                        @endforelse
                     </div>
                 </div>
             </div>

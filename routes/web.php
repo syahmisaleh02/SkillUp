@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\CourseController;
+use App\Http\Controllers\EmployeeAttendanceController;
 
 // Welcome Page (this will also serve as the login page)
 Route::get('/', function () {
@@ -31,53 +33,56 @@ Route::prefix('admin')->group(function () {
 });
 
 // Manager Routes
-Route::prefix('manager')->group(function () {
+Route::middleware(['auth', 'role:manager'])->prefix('manager')->name('manager.')->group(function () {
     Route::get('/dashboard', function () {
         return view('manager.dashboard');
-    })->name('manager.dashboard');
+    })->name('dashboard');
     
-    Route::get('/team', function () {
-        return view('manager.team');
-    })->name('manager.team');
+    Route::get('/team', [CourseController::class, 'employeeProgressOverview'])->name('team');
 
-    Route::get('/course', function () {
-        return view('manager.course');
-    })->name('manager.course');
+    // Employee Progress Overview
+    Route::get('/team/progress', [CourseController::class, 'employeeProgressOverview'])->name('team.progress.overview');
 
-    Route::get('/course/{id}/edit', function () {
-        return view('manager.course-edit');
-    })->name('manager.course.edit');
+    // Course Management Routes
+    Route::get('/course', [CourseController::class, 'index'])->name('course');
+    Route::get('/course/create', [CourseController::class, 'create'])->name('course.create');
+    Route::post('/course', [CourseController::class, 'store'])->name('course.store');
+    Route::get('/course/{id}/edit', [CourseController::class, 'edit'])->name('course.edit');
+    Route::put('/course/{id}', [CourseController::class, 'update'])->name('course.update');
+    Route::delete('/course/{id}', [CourseController::class, 'destroy'])->name('course.destroy');
+    Route::get('/course/{id}', [CourseController::class, 'show'])->name('course.show');
+    Route::get('/course/{id}/assign', [CourseController::class, 'showAssignCourse'])->name('course.assign');
+    Route::get('/course/{courseId}/assign/show', [CourseController::class, 'showAssignCourse'])->name('course.assign.show');
+    Route::post('/course/{courseId}/assign/{employeeId}', [CourseController::class, 'assignCourse'])->name('course.assign.store');
+    Route::delete('/course/{courseId}/assign/{employeeId}', [CourseController::class, 'removeCourseAssignment'])->name('course.assign.remove');
+    Route::get('/employee/progress/{id}', [CourseController::class, 'getEmployeeProgress'])->name('employee.progress');
 
-    Route::get('/team/{id}/assign-course', function () {
-        return view('manager.assign-course');
-    })->name('manager.team.assign-course');
+    // Course Assignment Routes
+    Route::post('/course/material', [CourseController::class, 'storeMaterial'])->name('course.material.store');
+    Route::delete('/course/material/{courseId}/{materialIndex}', [CourseController::class, 'deleteMaterial'])->name('course.material.delete');
 
-    Route::get('/team/{id}/progress', function () {
-        return view('manager.employee-progress');
-    })->name('manager.team.progress');
+    // Course Data Routes
+    Route::get('/course-data', [CourseController::class, 'courseData'])->name('course.data');
+    Route::get('/course-data/{id}', [CourseController::class, 'courseDataDetails'])->name('course.data.details');
+    Route::get('/course-data/{id}/report', [CourseController::class, 'generateReport'])->name('course.data.report');
 });
 
 // Employee Routes
-Route::prefix('employee')->group(function () {
+Route::middleware(['auth', 'role:employee'])->prefix('employee')->name('employee.')->group(function () {
     Route::get('/dashboard', function () {
         return view('employee.dashboard');
-    })->name('employee.dashboard');
+    })->name('dashboard');
+    
+    Route::get('/courses', [CourseController::class, 'employeeCourses'])->name('courses');
+    Route::get('/course/{id}', [CourseController::class, 'show'])->name('course.view');
+    
+    // Attendance Routes
+    Route::get('/attendance', [EmployeeAttendanceController::class, 'index'])->name('attendance');
+    Route::post('/attendance/sign', [EmployeeAttendanceController::class, 'signAttendance'])->name('attendance.sign');
 
-    Route::get('/courses', function () {
-        return view('employee.courses');
-    })->name('employee.courses');
-
-    Route::get('/attendance', function () {
-        return view('employee.attendance');
-    })->name('employee.attendance');
-
-    Route::get('/available-courses', function () {
-        return view('employee.available-courses');
-    })->name('employee.available-courses');
-
-    Route::get('/course/{id}', function ($id) {
-        return view('employee.course-view', ['courseId' => $id]);
-    })->name('employee.course.view');
+    Route::post('/course/{id}/join', [CourseController::class, 'employeeJoinCourse'])->name('course.join');
+    Route::delete('/course/{id}/unenroll', [CourseController::class, 'employeeUnenrollCourse'])->name('course.unenroll');
+    Route::post('/course/{courseId}/material/{materialIndex}/complete', [CourseController::class, 'markMaterialCompleted'])->name('course.material.complete');
 });
 
 // Profile Route (accessible by all users)

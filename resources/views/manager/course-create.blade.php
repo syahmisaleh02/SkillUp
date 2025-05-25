@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Edit Course | SkillUp</title>
+    <title>Create Course | SkillUp</title>
     <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.2/dist/alpine.min.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -53,8 +53,8 @@
                         <i class="fas fa-user text-green-700"></i>
                     </div>
                     <div>
-                        <p class="text-sm font-medium">Guest User</p>
-                        <p class="text-xs text-green-200">Manager</p>
+                        <p class="text-sm font-medium">{{ Auth::user()->name }}</p>
+                        <p class="text-xs text-green-200">{{ ucfirst(Auth::user()->role) }}</p>
                     </div>
                 </a>
             </div>
@@ -64,7 +64,7 @@
         <main class="flex-1 ml-64 p-6">
             <div class="max-w-4xl mx-auto">
                 <div class="flex justify-between items-center mb-8">
-                    <h1 class="text-3xl font-bold text-gray-800 dark:text-white">Edit Course</h1>
+                    <h1 class="text-3xl font-bold text-gray-800 dark:text-white">Create New Course</h1>
                     <a href="{{ route('manager.course') }}" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
                         <i class="fas fa-arrow-left mr-2"></i>Back to Courses
                     </a>
@@ -72,74 +72,49 @@
 
                 <!-- Course Form -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-6">
-                    <form action="{{ route('manager.course.update', $course->_id) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('manager.course.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
-                        @method('PUT')
                         <div class="space-y-6">
                             <!-- Course Title -->
                             <div>
                                 <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Course Title</label>
-                                <input type="text" id="title" name="title" value="{{ $course->title }}" 
+                                <input type="text" id="title" name="title" required
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
                             </div>
 
                             <!-- Course Description -->
                             <div>
                                 <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
-                                <textarea id="description" name="description" rows="4" 
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">{{ $course->description }}</textarea>
-                            </div>
-
-                            <!-- Course Status -->
-                            <div>
-                                <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
-                                <select id="status" name="status" 
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
-                                    <option value="active" {{ $course->status === 'active' ? 'selected' : '' }}>Active</option>
-                                    <option value="draft" {{ $course->status === 'draft' ? 'selected' : '' }}>Draft</option>
-                                </select>
+                                <textarea id="description" name="description" rows="4" required
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"></textarea>
                             </div>
 
                             <!-- Course Category -->
                             <div>
                                 <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
-                                <select id="category" name="category"
+                                <select id="category" name="category" required
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
-                                    <option value="development" {{ $course->category === 'development' ? 'selected' : '' }}>Development</option>
-                                    <option value="design" {{ $course->category === 'design' ? 'selected' : '' }}>Design</option>
-                                    <option value="business" {{ $course->category === 'business' ? 'selected' : '' }}>Business</option>
+                                    <option value="">Select a category...</option>
+                                    <option value="development">Development</option>
+                                    <option value="design">Design</option>
+                                    <option value="business">Business</option>
                                 </select>
                             </div>
 
-                            <!-- Course Materials -->
+                            <!-- Course Status -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Course Materials</label>
-                                <div class="mt-2 space-y-4">
-                                    <!-- Existing Materials -->
-                                    <div class="border rounded-lg p-4">
-                                        <div class="mb-4">
-                                            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-2">Current Materials</h3>
-                                            @if($course->materials && count($course->materials) > 0)
-                                                <ul class="space-y-2">
-                                                    @foreach($course->materials as $material)
-                                                        <li class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded">
-                                                            <span class="text-gray-700 dark:text-gray-300">{{ $material['name'] }}</span>
-                                                            <span class="text-sm text-gray-500 dark:text-gray-400">{{ $material['description'] ?? 'No description' }}</span>
-                                                        </li>
-                                                    @endforeach
-                                                </ul>
-                                            @else
-                                                <p class="text-gray-500 dark:text-gray-400">No materials uploaded yet.</p>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </div>
+                                <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+                                <select id="status" name="status" required
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                                    <option value="draft">Draft</option>
+                                    <option value="active">Active</option>
+                                </select>
                             </div>
 
                             <!-- Submit Button -->
                             <div class="flex justify-end">
                                 <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
-                                    Save Changes
+                                    Create Course
                                 </button>
                             </div>
                         </div>

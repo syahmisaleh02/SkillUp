@@ -29,7 +29,7 @@
                     <li>
                         <a href="{{ route('manager.team') }}" class="block py-2 px-4 hover:bg-green-600 flex items-center">
                             <i class="fas fa-users w-6"></i>
-                            <span>Team Management</span>
+                            <span>Team Performance</span>
                         </a>
                     </li>
                     <li>
@@ -39,9 +39,9 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="block py-2 px-4 hover:bg-green-600 flex items-center">
+                        <a href="{{ route('manager.course.data') }}" class="block py-2 px-4 hover:bg-green-600 flex items-center">
                             <i class="fas fa-chart-line w-6"></i>
-                            <span>Performance Reports</span>
+                            <span>Course Data</span>
                         </a>
                     </li>
                 </ul>

@@ -70,5 +70,6 @@ class Kernel extends HttpKernel
         'is.admin' => \App\Http\Middleware\IsAdmin::class,
         'is.manager' => \App\Http\Middleware\IsManager::class,
         'api.token' => \App\Http\Middleware\ApiTokenMiddleware::class,
+        'role' => \App\Http\Middleware\CheckRole::class,
     ];
 }

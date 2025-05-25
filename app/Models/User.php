@@ -10,6 +10,7 @@ use MongoDB\Client;
 use MongoDB\BSON\ObjectId;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class User implements AuthenticatableContract, AuthorizableContract
 {
@@ -100,6 +101,15 @@ class User implements AuthenticatableContract, AuthorizableContract
             return new static((array) $result);
         }
         return null;
+    }
+
+    public static function findOrFail($id)
+    {
+        $user = static::find($id);
+        if (!$user) {
+            throw new ModelNotFoundException("User not found with ID: {$id}");
+        }
+        return $user;
     }
 
     public function first()
@@ -303,7 +313,23 @@ class User implements AuthenticatableContract, AuthorizableContract
 
     public function get($columns = ['*'])
     {
-        return $this->all();
+        try {
+            $cursor = $this->db->{$this->collection}->find($this->where);
+            $users = [];
+            foreach ($cursor as $document) {
+                $user = new static();
+                $user->attributes = (array)$document;
+                $user->_id = $document->_id;
+                $users[] = $user;
+            }
+            return collect($users);
+        } catch (\Exception $e) {
+            Log::error('Error fetching users', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return collect([]);
+        }
     }
 
     public function toArray()

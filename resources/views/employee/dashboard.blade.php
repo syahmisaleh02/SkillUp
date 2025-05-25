@@ -28,7 +28,7 @@
                     </li>
                     <li>
                         <a href="{{ route('employee.attendance') }}" class="block py-2 px-4 hover:bg-green-600 flex items-center">
-                            <i class="bi bi-calendar-check mr-3"></i>
+                            <i class="fas fa-calendar-check w-6"></i>
                             <span>Attendance</span>
                         </a>
                     </li>
