@@ -155,7 +155,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         @if($item->isAssigned)
-                                        <form action="{{ route('manager.course.assign.remove', ['courseId' => isset($course->name) ? $course->id : $item->id, 'employeeId' => isset($course->name) ? $item->id : $course->id]) }}" method="POST" class="inline">
+                                        <form action="{{ route('manager.course.assign.remove', ['courseId' => $course->_id, 'employeeId' => $item->_id]) }}" method="POST" class="inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
@@ -163,7 +163,7 @@
                                             </button>
                                         </form>
                                         @else
-                                        <form action="{{ route('manager.course.assign.store', ['courseId' => isset($course->name) ? $course->id : $item->id, 'employeeId' => isset($course->name) ? $item->id : $course->id]) }}" method="POST" class="inline">
+                                        <form action="{{ route('manager.course.assign.store', ['courseId' => $course->_id, 'employeeId' => $item->_id]) }}" method="POST" class="inline">
                                             @csrf
                                             <button type="submit" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">
                                                 <i class="fas fa-user-plus mr-1"></i>Assign

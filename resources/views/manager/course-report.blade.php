@@ -33,23 +33,29 @@
         }
         .stats {
             display: flex;
+            flex-direction: row;
             justify-content: space-between;
             margin-bottom: 20px;
+            gap: 20px;
         }
         .stat-box {
             background: #f9f9f9;
             padding: 15px;
             border-radius: 5px;
-            width: 23%;
+            flex: 1;
             text-align: center;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .stat-box h3 {
             margin: 0;
             color: #666;
             font-size: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
         }
         .stat-box p {
-            margin: 5px 0 0;
+            margin: 10px 0 0;
             font-size: 24px;
             font-weight: bold;
             color: #4CAF50;
@@ -100,6 +106,10 @@
             <div class="stat-box">
                 <h3>Average Progress</h3>
                 <p>{{ $courseData['average_progress'] }}%</p>
+            </div>
+            <div class="stat-box">
+                <h3>Total Time Spent</h3>
+                <p>{{ array_sum(array_column($courseData['enrolled_employees'], 'time_spent')) }} hours</p>
             </div>
         </div>
     </div>

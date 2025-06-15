@@ -79,7 +79,7 @@
             </div>
 
             <!-- Course Overview -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
                     <div class="flex items-center justify-between">
                         <div>
@@ -124,6 +124,17 @@
                         </div>
                     </div>
                 </div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Total Time Spent</p>
+                            <p class="text-2xl font-bold text-gray-800 dark:text-white">{{ \App\Models\Attendance::where('course_id', $course->_id)->sum('total_hours') }} hours</p>
+                        </div>
+                        <div class="h-12 w-12 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center">
+                            <i class="fas fa-clock text-red-600 dark:text-red-400"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Enrolled Employees List -->
@@ -137,7 +148,6 @@
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Employee</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Progress</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Last Activity</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Time Spent</th>
                                 </tr>
                             </thead>
@@ -169,10 +179,7 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                        {{ $employee->last_activity }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                        {{ $employee->time_spent }} hours
+                                        {{ number_format($employee->time_spent, ) }} hours
                                     </td>
                                 </tr>
                                 @empty

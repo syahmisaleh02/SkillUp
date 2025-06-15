@@ -74,9 +74,34 @@
                         <a href="{{ route('employee.courses') }}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center">
                             <i class="fas fa-book mr-2"></i> My Courses
                         </a>
-                        <a href="{{ route('logout') }}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md flex items-center">
+                        <button onclick="showLogoutReminder()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md flex items-center">
                             <i class="fas fa-sign-out-alt mr-2"></i> Logout
-                        </a>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Logout Reminder Modal -->
+            <div id="logoutReminderModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+                <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                    <div class="mt-3">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-medium text-gray-900">Logout Reminder</h3>
+                            <button onclick="closeLogoutReminder()" class="text-gray-400 hover:text-gray-500">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="mt-2">
+                            <p class="text-gray-600 mb-4">Don't forget to check your attendance before logging out!</p>
+                            <div class="flex justify-end space-x-3">
+                                <button onclick="closeLogoutReminder()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">
+                                    Logout Anyway
+                                </button>
+                                <a href="{{ route('employee.attendance') }}" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                                    Check Attendance
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -204,5 +229,16 @@
             </div>
         </main>
     </div>
+
+    <script>
+    function showLogoutReminder() {
+        document.getElementById('logoutReminderModal').classList.remove('hidden');
+    }
+
+    function closeLogoutReminder() {
+        document.getElementById('logoutReminderModal').classList.add('hidden');
+        window.location.href = "{{ route('logout') }}";
+    }
+    </script>
 </body>
 </html> 

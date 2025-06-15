@@ -79,6 +79,7 @@ Route::middleware(['auth', 'role:employee'])->prefix('employee')->name('employee
     // Attendance Routes
     Route::get('/attendance', [EmployeeAttendanceController::class, 'index'])->name('attendance');
     Route::post('/attendance/sign', [EmployeeAttendanceController::class, 'signAttendance'])->name('attendance.sign');
+    Route::get('/attendance/check', [EmployeeAttendanceController::class, 'checkAttendance'])->name('attendance.check');
 
     Route::post('/course/{id}/join', [CourseController::class, 'employeeJoinCourse'])->name('course.join');
     Route::delete('/course/{id}/unenroll', [CourseController::class, 'employeeUnenrollCourse'])->name('course.unenroll');

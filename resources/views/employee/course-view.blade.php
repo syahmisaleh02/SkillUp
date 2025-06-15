@@ -209,6 +209,31 @@
         </main>
     </div>
 
+    <!-- Attendance Reminder Modal -->
+    <div id="attendanceReminderModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">Attendance Reminder</h3>
+                    <button onclick="closeAttendanceReminder()" class="text-gray-400 hover:text-gray-500">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="mt-2">
+                    <p class="text-gray-600 mb-4">Don't forget to check your attendance for today!</p>
+                    <div class="flex justify-end space-x-3">
+                        <button onclick="closeAttendanceReminder()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">
+                            Later
+                        </button>
+                        <a href="{{ route('employee.attendance') }}" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                            Sign Attendance
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
     function markMaterialCompleted(courseId, materialIndex) {
         const button = document.getElementById(`material-${materialIndex}-button`);
@@ -286,6 +311,27 @@
         .finally(() => {
             button.disabled = false;
         });
+    }
+
+    // Show attendance reminder when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        @php
+            $employeeId = (string)Auth::user()->_id;
+            $assignedEmployees = (array) ($course->assigned_employees ?? []);
+            $isAssigned = in_array($employeeId, array_map('strval', $assignedEmployees));
+        @endphp
+        
+        @if($isAssigned)
+            showAttendanceReminder();
+        @endif
+    });
+
+    function showAttendanceReminder() {
+        document.getElementById('attendanceReminderModal').classList.remove('hidden');
+    }
+
+    function closeAttendanceReminder() {
+        document.getElementById('attendanceReminderModal').classList.add('hidden');
     }
     </script>
 </body>

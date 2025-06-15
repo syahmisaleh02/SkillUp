@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Course;
 use App\Models\User;
+use App\Models\Attendance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -178,9 +179,17 @@ class CourseController extends Controller
                     'created_at' => now()->toDateTimeString()
                 ];
 
+                // Store current assigned employees
+                $assignedEmployees = (array) ($course->assigned_employees ?? []);
+                
                 $materials = $course->materials ?? [];
                 $materials[] = $material;
+                
+                // Update materials while preserving assigned employees
                 $course->materials = $materials;
+                $course->assigned_employees = $assignedEmployees;
+                $course->enrolled_count = count($assignedEmployees);
+                
                 $course->save();
 
                 return response()->json([
@@ -315,8 +324,8 @@ class CourseController extends Controller
             $employee = User::findOrFail($employeeId);
             
             Log::info('Found course and employee', [
-                'course' => $course->getArrayCopy(),
-                'employee' => $employee->getArrayCopy()
+                'course' => $course->toArray(),
+                'employee' => $employee->toArray()
             ]);
             
             // Get current assigned employees and ensure it's an array
@@ -871,13 +880,19 @@ class CourseController extends Controller
                         }
                     }
 
+                    // Calculate actual time spent from attendance records
+                    $totalTimeSpent = Attendance::where('employee_id', $employeeId)
+                        ->where('course_id', $id)
+                        ->whereNotNull('total_hours')
+                        ->sum('total_hours');
+
                     $enrolledEmployees[] = (object)[
                         'name' => $employee->name,
                         'department' => $employee->department,
                         'progress' => round($progress, 1),
                         'is_completed' => $progress == 100,
                         'last_activity' => $lastActivity,
-                        'time_spent' => count($completedMaterials) * 2 // Assuming 2 hours per material
+                        'time_spent' => round($totalTimeSpent, 2) // Actual hours from attendance
                     ];
                 }
             }

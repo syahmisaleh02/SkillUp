@@ -36,9 +36,11 @@ class EmployeeAttendanceController extends Controller
                 ->orderBy('date', 'desc')
                 ->get()
                 ->map(function ($record) {
+                    $course = Course::find($record->course_id);
                     return [
                         'date' => $record->date->format('Y-m-d'),
                         'status' => 'Present',
+                        'course_title' => $course ? $course->title : 'Unknown Course',
                         'check_in' => $record->check_in ? $record->check_in->format('h:i A') : '-',
                         'check_out' => $record->check_out ? $record->check_out->format('h:i A') : '-',
                         'total_hours' => $record->total_hours ?? '-'
@@ -124,11 +126,32 @@ class EmployeeAttendanceController extends Controller
                 // Calculate total hours
                 $checkIn = Carbon::parse($attendance->check_in);
                 $checkOut = $time;
-                $attendance->total_hours = round($checkOut->diffInMinutes($checkIn) / 60, 2);
+                $totalHours = round($checkOut->diffInMinutes($checkIn) / 60, 2);
+                $attendance->total_hours = $totalHours;
+                
+                // Add logging
+                Log::info('Calculating total hours', [
+                    'employee_id' => $employeeId,
+                    'course_id' => $validatedData['course'],
+                    'check_in' => $checkIn->format('Y-m-d H:i:s'),
+                    'check_out' => $checkOut->format('Y-m-d H:i:s'),
+                    'total_hours' => $totalHours
+                ]);
+                
                 $message = 'Check-out recorded successfully';
             }
 
             $attendance->save();
+            
+            // Add logging after save
+            Log::info('Attendance record saved', [
+                'employee_id' => $employeeId,
+                'course_id' => $validatedData['course'],
+                'date' => $date->format('Y-m-d'),
+                'check_in' => $attendance->check_in ? $attendance->check_in->format('Y-m-d H:i:s') : null,
+                'check_out' => $attendance->check_out ? $attendance->check_out->format('Y-m-d H:i:s') : null,
+                'total_hours' => $attendance->total_hours
+            ]);
 
             return response()->json([
                 'success' => true,
@@ -142,6 +165,40 @@ class EmployeeAttendanceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to record attendance: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Check if an employee has signed in for a specific course on a given date
+     */
+    public function checkAttendance(Request $request)
+    {
+        try {
+            $validatedData = $request->validate([
+                'date' => 'required|date',
+                'course' => 'required|exists:courses,_id'
+            ]);
+
+            $employeeId = auth()->user()->_id;
+            $date = Carbon::parse($validatedData['date']);
+
+            // Find attendance record for this date and course
+            $attendance = Attendance::where('employee_id', $employeeId)
+                ->where('course_id', $validatedData['course'])
+                ->whereDate('date', $date)
+                ->first();
+
+            return response()->json([
+                'hasSignedIn' => $attendance && $attendance->check_in !== null
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error checking attendance', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json([
+                'error' => 'Failed to check attendance status'
             ], 500);
         }
     }
